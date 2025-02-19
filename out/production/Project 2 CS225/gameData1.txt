@@ -1,0 +1,16 @@
+# Categories
+Presenters: Donna David, Gena Graham, Kathy Koch, Zora Zinn
+Days: 2 days, 3 days, 4 days, 5 days
+Topics: Chevrolet, Dodge, Lexus, Volvo
+
+# Correct Answers
+Donna David: Dodge, 3 days
+Gena Graham: Lexus, 2 days
+Kathy Koch: Chevrolet, 5 days
+Zora Zinn: Volvo, 4 days
+
+# Clues
+The 5 day reservation is for the Lexus.
+Zora Zinn's reservation is for a period 2 days shorter than the Dodge reservation.
+Kathy Koch's rental is for the Lexus.
+The Volvo rental is either the 5 day rental or Gena Graham's rental.
