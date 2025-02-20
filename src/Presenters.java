@@ -7,8 +7,8 @@
 
 import java.util.List;
 
-public class Presenters extends Category{ //Bruna 02/18
+public class Presenters extends Category{ //Bruna 02/20
     public Presenters(FileHandler fileHandler){
-        super("Presenters", fileHandler.getCategoryData("Presenters"));
+        super("Presenters", fileHandler.getPresenters());
     }
 }

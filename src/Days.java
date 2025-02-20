@@ -7,8 +7,8 @@
 
 import java.util.List;
 
-public class Days extends Category{ //Bruna 02/18
+public class Days extends Category{ //Bruna 02/20
     public Days(FileHandler fileHandler){
-        super("Days", fileHandler.getCategoryData("Days"));
+        super("Days", fileHandler.getDays());
     }
 }

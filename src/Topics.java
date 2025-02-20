@@ -7,8 +7,8 @@
 
 import java.util.List;
 
-public class Topics extends Category{ //Bruna 02/18
+public class Topics extends Category{ //Bruna 02/20
     public Topics(FileHandler fileHandler){
-        super("Topics", fileHandler.getCategoryData("Topics"));
+        super("Topics", fileHandler.getTopics());
     }
 }

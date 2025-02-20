@@ -2,44 +2,52 @@
  *  Project 2 - Logic Puzzles Game
  *  Bruna A, Daniel W, Gabriel L.
  *
- *  FileHandler class
+ *  FileHandler class - using arraylists
  */
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
 
-public class FileHandler {
-
-    private Map<String, List<String>> categoryData;
+public class FileHandler { //Bruna 02/20
+    private ArrayList<String> presenters;
+    private ArrayList<String> days;
+    private ArrayList<String> topics;
 
     public FileHandler() {
-        categoryData = new HashMap<>();
+        presenters = new ArrayList<>();
+        days = new ArrayList<>();
+        topics = new ArrayList<>();
     }
 
     public void loadPuzzleData(String filePath) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filePath)); //reads the file
-        parseCategories(lines);
-    }
-
-    private void parseCategories(List<String> lines) { //parses from input file
-        for (String line : lines) {
+        for (String line : Files.readAllLines(Paths.get(filePath))) {
             line = line.trim();
 
-            //if the line contains ": " then it's a category
-            if (line.contains(": ")) {
-                String[] parts = line.split(": ");
-                if (parts.length == 2) {
-                    String category = parts[0].trim();
-                    List<String> values = Arrays.asList(parts[1].split(", "));
-                    categoryData.put(category, values);
-                }
+            if (line.startsWith("Presenters:")) {
+                addToList(presenters, line.substring(11)); // Store values in ArrayList
+            } else if (line.startsWith("Days:")) {
+                addToList(days, line.substring(6));
+            } else if (line.startsWith("Topics:")) {
+                addToList(topics, line.substring(8));
             }
         }
     }
 
-    public List<String> getCategoryData(String category) { //list for the specific category
-        return categoryData.getOrDefault(category, new ArrayList<>());
+    private void addToList(ArrayList<String> list, String data) {
+        for (String value : data.split(", ")) {
+            list.add(value.trim());
+        }
+    }
+
+    public ArrayList<String> getPresenters() {
+        return presenters;
+    }
+    public ArrayList<String> getDays() {
+        return days;
+    }
+    public ArrayList<String> getTopics() {
+        return topics;
     }
 }
