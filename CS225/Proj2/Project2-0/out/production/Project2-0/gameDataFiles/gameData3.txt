@@ -1,0 +1,20 @@
+# Categories
+book: Call of Duty, My Best Friend, Wendalissa, Zara's Game
+copies sold: 12, 19, 26, 33
+authors: Daniel Hansen, Jeff Holman, Matt Stevens, Roscoe Jones
+
+# Clues
+Jeff Holman's book sold 7 more copies than Matt Stevens's book.
+Matt Stevens's book sold somewhat fewer copies than My Best Friend.
+Zara's Game is either the title that sold 33 copies or Daniel Hansen's book.
+Wendalissa sold 26 copies.
+Zara's Game and Daniel Hansen's book are different books.
+
+# Correct Answers
+Call of Duty: Matt Stevens, 12
+My Best Friend: Jeff Holman, 19
+Wendalissa: Daniel Hansen, 26
+Zara's Game: Roscoe Jones, 33
+
+# Story
+Help Dustin figure out his book store's "Best-Sellers List" by matching each book to its author, and determining its page-count and number of copies sold last week.

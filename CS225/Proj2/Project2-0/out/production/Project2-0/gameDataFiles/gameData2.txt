@@ -1,0 +1,20 @@
+# Categories
+players: Florence, Hope, Kristie, Leigh
+scores: 300, 380, 460, 540
+lanes: 2, 3, 6, 7
+
+# Clues
+The contestant in lane 2 scored 160 points fewer points than Hope.
+Leigh scored 80 points fewer points than the player in lane 3.
+Kristie scored 300 points.
+Florence scored 380 points.
+The contestant in lane 6 scored fewer points than the player in lane 7.
+
+# Correct Answers
+Florence: 2, 380
+Hope: 3, 540
+Kristie: 6, 300
+Leigh: 7, 460
+
+# Story
+Buckner's Boardwalk held a Skee Ball contest this weekend. Using only the clues below, determine each player's final score and the lane they played in, along with their hometown.
