@@ -21,7 +21,7 @@ public class Main {
         }
     }
 
-    //resets unplayed files once all puzzles have been played, so that we dont run into an error once we have played all files.
+    //resets unplayed files once all puzzles have been played, so that we don't run into an error once we have played all files.
     public static void resetUnplayedFiles(ArrayList<File> allFiles) {
         unplayedFiles.clear();
         unplayedFiles.addAll(allFiles);

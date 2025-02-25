@@ -15,7 +15,7 @@ public class PuzzleData {
     private static ArrayList<File> allFiles = new ArrayList<>(); //keeps track of all files loaded from the folder
 
     public PuzzleData(ArrayList<File> unplayedFiles) throws IOException { //initializes a new puzzle with data from a random file
-        File folder = new File("Resources"); //the folder where all files exist
+        File folder = new File("./Resources"); //the folder where all files exist
         File[] files = folder.listFiles((dir, name) -> name.endsWith(".txt"));
 
         if (files != null && files.length > 0) { //adds all .txt files to the list

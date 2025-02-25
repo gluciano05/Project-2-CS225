@@ -1,8 +1,15 @@
+// Worked on By Bruna, Gabe, and Daniel
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class PuzzleGUI {
+    private static JLabel timerLabel;
+    private static Timer timer;
+    private static long startTime;
     private JFrame frame;
     private JButton[][][] gridButtons; //buttons for the grids
     private PuzzleSolver solver; //puzzle logic
@@ -10,6 +17,7 @@ public class PuzzleGUI {
     private JTextArea cluesArea; //displays clues
     private JTextArea notesArea; //user possible notes
     private JTextArea storyArea; //displays the 'story'
+    private long totalTimeElapsed; //for keeping track of user scores and time to completion
 
     //constructor - initializes the game
     public PuzzleGUI(PuzzleData data, PuzzleSolver solver) {
@@ -49,7 +57,8 @@ public class PuzzleGUI {
         playButton.setFont(new Font("Arial", Font.BOLD, 18));
         playButton.addActionListener(e -> {
             welcomeFrame.dispose();  //close the welcome screen
-            showGameScreen();       //launch the main game
+            showGameScreen(); //launch the main game
+            startTimer(); //starts the timer when the game starts
         });
         welcomeFrame.add(playButton, BorderLayout.SOUTH);
 
@@ -122,12 +131,18 @@ public class PuzzleGUI {
         startOverButton.addActionListener(e -> startOver());
 
         JButton submitButton = new JButton("Submit");
-        submitButton.addActionListener(e -> submitAnswers());
+        submitButton.addActionListener(e ->  {
+            stopTimer();
+            submitAnswers();
+        });
+
+        timerLabel = new JLabel("Timer: ");
 
         controlPanel.add(hintButton);
         controlPanel.add(clearErrorsButton);
         controlPanel.add(startOverButton);
         controlPanel.add(submitButton);
+        controlPanel.add(timerLabel);
 
         //adds all of this to the frame
         frame.add(gridsPanel, BorderLayout.CENTER);
@@ -282,7 +297,20 @@ public class PuzzleGUI {
         frame.dispose();
         Main.startNewGame(); //new game with main, taking data from the unplayed files
     }
-
-
-
+    private void startTimer () {
+        startTime = System.currentTimeMillis();
+        timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //has the timer display in this format "seconds.milliseconds", example 10.2 seconds
+                totalTimeElapsed = (System.currentTimeMillis() - startTime) / 1000;
+                timerLabel.setText("Timer: " + totalTimeElapsed + "s");
+            }
+        });
+        timer.start();
+    }
+    private void stopTimer () {
+        timer.stop();
+        System.out.println("Total time elapsed: " + totalTimeElapsed + "s");
+    }
 }
