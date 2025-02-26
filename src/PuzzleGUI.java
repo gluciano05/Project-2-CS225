@@ -10,6 +10,10 @@ public class PuzzleGUI {
     private static JLabel timerLabel;
     private static Timer timer;
     private static long startTime;
+    private long totalTimeElapsed; //tracks total elapsed time
+    private long adjustedTime; //tracks adjusted time with the addition of penalties
+    private static long totalElapsedTime = 0;  //stores time value
+    private static long totalAdjustedTime = 0; //stores adjusted time value
     private JFrame frame;
     private JButton[][][] gridButtons; //buttons for the grids
     private PuzzleSolver solver; //puzzle logic
@@ -17,7 +21,6 @@ public class PuzzleGUI {
     private JTextArea cluesArea; //displays clues
     private JTextArea notesArea; //user possible notes
     private JTextArea storyArea; //displays the 'story'
-    private long totalTimeElapsed; //for keeping track of user scores and time to completion
 
     //constructor - initializes the game
     public PuzzleGUI(PuzzleData data, PuzzleSolver solver) {
@@ -32,35 +35,49 @@ public class PuzzleGUI {
         welcomeFrame.setSize(600, 400);
         welcomeFrame.setLayout(new BorderLayout());
 
-        //title
         JLabel titleLabel = new JLabel("Welcome to the Logic Puzzle Game!", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeFrame.add(titleLabel, BorderLayout.NORTH);
 
-        //game instructions
+        // **Instructions Panel**
         JTextArea instructions = new JTextArea(
                 "Instructions:\n\n" +
                         "1. Fill the grids by clicking on the cells.\n" +
                         "2. Click once for 'X' (guess) and twice for 'O' (final answer).\n" +
-                        "3. Use the Hint button to reveal a correct answer.\n" +
-                        "4. Clear Errors removes incorrect 'O's, and Start Over resets the game.\n\n" +
+                        "3. Use the Hint button to reveal a correct answer (+20s penalty).\n" +
+                        "4. Clear Errors removes incorrect 'O's (+20s penalty).\n" +
+                        "5. Start Over resets the game and timer.\n\n" +
                         "Good luck!"
         );
         instructions.setEditable(false);
         instructions.setMargin(new Insets(10, 10, 10, 10));
         instructions.setLineWrap(true);
         instructions.setWrapStyleWord(true);
-        welcomeFrame.add(instructions, BorderLayout.CENTER);
 
-        //play button
+        // **Time Details Panel**
+        JLabel elapsedTimeLabel = new JLabel("Total Time Elapsed: " + totalElapsedTime + "s", SwingConstants.CENTER);
+        JLabel adjustedTimeLabel = new JLabel("Adjusted Time: " + totalAdjustedTime + "s", SwingConstants.CENTER);
+        JPanel scorePanel = new JPanel(new GridLayout(2, 1));
+        scorePanel.add(elapsedTimeLabel);
+        scorePanel.add(adjustedTimeLabel);
+
+        // **Center Panel (Instructions at the top, Time Details at the bottom)**
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(instructions, BorderLayout.NORTH);
+        centerPanel.add(scorePanel, BorderLayout.SOUTH);
+
+        welcomeFrame.add(centerPanel, BorderLayout.CENTER); // Add center panel to frame
+
+        // **Play Button in South**
         JButton playButton = new JButton("Play");
         playButton.setFont(new Font("Arial", Font.BOLD, 18));
         playButton.addActionListener(e -> {
-            welcomeFrame.dispose();  //close the welcome screen
-            showGameScreen(); //launch the main game
-            startTimer(); //starts the timer when the game starts
+            PuzzleGUI.resetTimers(); //resets for every new play
+            welcomeFrame.dispose(); // Close welcome screen
+            showGameScreen(); // Start game
+            startTimer(); // Start timer
         });
-        welcomeFrame.add(playButton, BorderLayout.SOUTH);
+        welcomeFrame.add(playButton, BorderLayout.SOUTH); // Add Play button separately
 
         welcomeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         welcomeFrame.setLocationRelativeTo(null);
@@ -122,13 +139,23 @@ public class PuzzleGUI {
         //each calls their own methods when pressed
         JPanel controlPanel = new JPanel();
         JButton hintButton = new JButton("Hint");
-        hintButton.addActionListener(e -> showHint());
+        hintButton.addActionListener(e -> {
+            showHint();
+            adjustedTime += 20; //applies penalty
+        });
 
         JButton clearErrorsButton = new JButton("Clear Errors");
-        clearErrorsButton.addActionListener(e -> clearErrors());
+        clearErrorsButton.addActionListener(e -> {
+            clearErrors();
+            adjustedTime += 20;
+        });
 
         JButton startOverButton = new JButton("Start Over");
-        startOverButton.addActionListener(e -> startOver());
+        startOverButton.addActionListener(e -> {
+            startOver();
+            totalTimeElapsed = 0; //resets all and sets to 0
+            adjustedTime = 0;
+        });
 
         JButton submitButton = new JButton("Submit");
         submitButton.addActionListener(e ->  {
@@ -220,11 +247,11 @@ public class PuzzleGUI {
                         String userAnswer = solver.getUserAnswer(grid, row, col);
                         if ("O".equals(userAnswer)) {
                             gridButtons[grid][row][col].setText("O");
-                            gridButtons[grid][row][col].setBackground(Color.GREEN); //highlights answer with green
                         }
                     }
                 }
             }
+            totalAdjustedTime += 20; //adds 20 seconds penalty
         } else { //when all hints have been revealed
             JOptionPane.showMessageDialog(frame, "No more hints available! All correct answers have been revealed.");
         }
@@ -241,21 +268,22 @@ public class PuzzleGUI {
                     //if user answer ('O') is incorrect, clear that cell
                     if ("O".equals(userAnswer) && !"O".equals(correctAnswer)) {
                         gridButtons[grid][row][col].setText(""); //clears button text
-                        gridButtons[grid][row][col].setBackground(null); //resets background color (if any)
                         solver.setUserAnswer(grid, row, col, null); //clears user's answer
                     }
                 }
             }
         }
-
+        totalAdjustedTime += 20; //adds 20 seconds penalty
         JOptionPane.showMessageDialog(frame, "All incorrect answers have been cleared!");
     }
 
     //start over
     private void startOver() {
         solver.resetUserAnswers(); //resets all answers
+        totalTimeElapsed = 0; //resets timer
+        totalAdjustedTime = 0;
 
-        // Reset all buttons in the GUI
+        //resets all buttons in the GUI
         for (int grid = 0; grid < 3; grid++) {
             for (int row = 0; row < 4; row++) {
                 for (int col = 0; col < 4; col++) {
@@ -264,39 +292,27 @@ public class PuzzleGUI {
                 }
             }
         }
-
         JOptionPane.showMessageDialog(frame, "The puzzle has been reset! You can start over.");
     }
 
     //submit
     private void submitAnswers() {
         boolean allCorrect = solver.checkEntirePuzzle();
+        timer.stop(); //ensures timer stops when submit is clicked
 
         if (allCorrect) {
+            totalElapsedTime = totalTimeElapsed; //saves elapsed time
+            totalAdjustedTime = totalElapsedTime + (totalAdjustedTime - totalTimeElapsed); //penalties included
             JOptionPane.showMessageDialog(frame, "Congratulations! All answers are correct!");
+            frame.dispose(); //closes game screen
+            Main.startNewGame(); //returns to welcome screen
         } else {
-            //highlights incorrect answers visually
-            for (int grid = 0; grid < 3; grid++) {
-                for (int row = 0; row < 4; row++) {
-                    for (int col = 0; col < 4; col++) {
-                        boolean isCorrect = solver.isAnswerCorrect(grid, row, col);
-                        if (!isCorrect) {
-                            gridButtons[grid][row][col].setBackground(Color.RED); //incorrect answer
-                        } else if ("O".equals(solver.getUserAnswer(grid, row, col))) {
-                            gridButtons[grid][row][col].setBackground(Color.GREEN); //correct answer
-                        } else {
-                            gridButtons[grid][row][col].setBackground(null);
-                        }
-                    }
-                }
-            }
-            JOptionPane.showMessageDialog(frame, "Some or all answers are incorrect.");
-        }
+            JOptionPane.showMessageDialog(frame, "Some or all answers are incorrect. Keep playing until all are correct.");
 
-        //takes the user back to the welcome screen once submit was pressed
-        frame.dispose();
-        Main.startNewGame(); //new game with main, taking data from the unplayed files
+            timer.start(); //resumes the timer
+        }
     }
+
     private void startTimer () {
         startTime = System.currentTimeMillis();
         timer = new Timer(100, new ActionListener() {
@@ -311,6 +327,10 @@ public class PuzzleGUI {
     }
     private void stopTimer () {
         timer.stop();
-        System.out.println("Total time elapsed: " + totalTimeElapsed + "s");
+    }
+
+    public static void resetTimers() {
+        totalElapsedTime = 0;
+        totalAdjustedTime = 0;
     }
 }
