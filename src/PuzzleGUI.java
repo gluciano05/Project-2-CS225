@@ -1,4 +1,11 @@
-// Worked on By Bruna, Gabe, and Daniel
+/*
+ * Logic Puzzle Game - CS225 Project 2
+ *
+ * PuzzleGUI class is responsible for managing the UI.
+ * It includes all visual components as well as user interactions.
+ *
+ * Bruna, Daniel, and Gabriel.
+ */
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,13 +14,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class PuzzleGUI {
-    private static JLabel timerLabel;
-    private static Timer timer;
-    private static long startTime;
-    private long totalTimeElapsed; //tracks total elapsed time
-    private long adjustedTime; //tracks adjusted time with the addition of penalties
-    private static long totalElapsedTime = 0;  //stores time value
-    private static long totalAdjustedTime = 0; //stores adjusted time value
     private JFrame frame;
     private JButton[][][] gridButtons; //buttons for the grids
     private PuzzleSolver solver; //puzzle logic
@@ -21,15 +21,29 @@ public class PuzzleGUI {
     private JTextArea cluesArea; //displays clues
     private JTextArea notesArea; //user possible notes
     private JTextArea storyArea; //displays the 'story'
+    private static JLabel timerLabel;
+    private static Timer timer;
+    private static long startTime;
+    private long totalTimeElapsed; //tracks total elapsed time
+    private long adjustedTime; //tracks adjusted time with the addition of penalties
+    private static long totalElapsedTime = 0;  //stores time value
+    private static long totalAdjustedTime = 0; //stores adjusted time value
 
-    //constructor - initializes the game
+    /**
+     * Constructor - initializes the GUI with the data and logic.
+     */
     public PuzzleGUI(PuzzleData data, PuzzleSolver solver) {
         this.solver = solver;
         this.data = data;
         showWelcomeScreen(); //calls first screen
     }
 
-    //welcome screen
+    /**
+     * Displays the welcome screen with instructions, timer scores, and a play button.
+     * Starts the game when the play button is clicked.
+     *
+     * all visuals - Bruna and Gabriel
+     */
     private void showWelcomeScreen() {
         JFrame welcomeFrame = new JFrame("Logic Puzzle Game");
         welcomeFrame.setSize(600, 400);
@@ -39,52 +53,59 @@ public class PuzzleGUI {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         welcomeFrame.add(titleLabel, BorderLayout.NORTH);
 
-        // **Instructions Panel**
+        //instructions
         JTextArea instructions = new JTextArea(
                 "Instructions:\n\n" +
-                        "1. Fill the grids by clicking on the cells.\n" +
-                        "2. Click once for 'X' (guess) and twice for 'O' (final answer).\n" +
+                        "1. Find the logic relationships between the categories in the grid.\n" +
+                        "2. Select relationship by clicking on the cells.\n" +
+                        "  - Click once for 'X' (guess) and twice for 'O' (final answer).\n" +
                         "3. Use the Hint button to reveal a correct answer (+20s penalty).\n" +
-                        "4. Clear Errors removes incorrect 'O's (+20s penalty).\n" +
-                        "5. Start Over resets the game and timer.\n\n" +
-                        "Good luck!"
+                        "4. Clear Errors removes incorrect selections (+20s penalty).\n" +
+                        "5. Start Over resets the game and timer.\n" +
+                        "6. You can only 'Submit' if all answers are correct.\n\n" +
+                        "Ps.: The lower the adjusted time, the better. Good luck! :)"
         );
         instructions.setEditable(false);
         instructions.setMargin(new Insets(10, 10, 10, 10));
         instructions.setLineWrap(true);
         instructions.setWrapStyleWord(true);
 
-        // **Time Details Panel**
+        //timer tracking details - Gabriel
         JLabel elapsedTimeLabel = new JLabel("Total Time Elapsed: " + totalElapsedTime + "s", SwingConstants.CENTER);
         JLabel adjustedTimeLabel = new JLabel("Adjusted Time: " + totalAdjustedTime + "s", SwingConstants.CENTER);
         JPanel scorePanel = new JPanel(new GridLayout(2, 1));
         scorePanel.add(elapsedTimeLabel);
         scorePanel.add(adjustedTimeLabel);
 
-        // **Center Panel (Instructions at the top, Time Details at the bottom)**
+        //adds to center panel, both instructions and scores
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(instructions, BorderLayout.NORTH);
         centerPanel.add(scorePanel, BorderLayout.SOUTH);
 
-        welcomeFrame.add(centerPanel, BorderLayout.CENTER); // Add center panel to frame
+        welcomeFrame.add(centerPanel, BorderLayout.CENTER); //adds to frame
 
-        // **Play Button in South**
+        //play button
         JButton playButton = new JButton("Play");
         playButton.setFont(new Font("Arial", Font.BOLD, 18));
         playButton.addActionListener(e -> {
             PuzzleGUI.resetTimers(); //resets for every new play
-            welcomeFrame.dispose(); // Close welcome screen
-            showGameScreen(); // Start game
-            startTimer(); // Start timer
+            welcomeFrame.dispose(); //closes welcome screen
+            showGameScreen(); //start game
+            startTimer(); //start timer
         });
-        welcomeFrame.add(playButton, BorderLayout.SOUTH); // Add Play button separately
+        welcomeFrame.add(playButton, BorderLayout.SOUTH); //so 'Play' button can be displayed separately.
 
         welcomeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         welcomeFrame.setLocationRelativeTo(null);
         welcomeFrame.setVisible(true);
     }
 
-    //main game screen
+    /**
+     * Displays the main game screen with puzzle grids and the interface.
+     * Sets up buttons, clues, story, and controls (buttons).
+     *
+     * all visuals - Bruna and Gabriel
+     */
     private void showGameScreen() {
         frame = new JFrame("Logic Puzzle Game");
         frame.setSize(1200, 700);
@@ -128,7 +149,7 @@ public class PuzzleGUI {
         storyArea.setText(data.story);
         tabbedPane.addTab("Story", storyArea);
 
-        //notes tab
+        //notes tab - editable
         notesArea = new JTextArea();
         notesArea.setLineWrap(true);
         notesArea.setWrapStyleWord(true);
@@ -163,6 +184,7 @@ public class PuzzleGUI {
             submitAnswers();
         });
 
+        //timer - Gabriel
         timerLabel = new JLabel("Timer: ");
 
         controlPanel.add(hintButton);
@@ -180,7 +202,10 @@ public class PuzzleGUI {
         frame.setVisible(true);
     }
 
-    //creates grids with labels
+    /**
+     * Creates a grid panel with labels for rows and columns, and grid buttons.
+     * - Daniel
+     */
     private JPanel createGridPanel(int gridIndex) {
         JPanel panel = new JPanel(new GridLayout(5, 5));  //4x4 grid + labels
         panel.setBorder(BorderFactory.createTitledBorder("Grid " + (gridIndex + 1)));
@@ -218,11 +243,13 @@ public class PuzzleGUI {
         return panel;
     }
 
-    //clicking the button and selecting the answer logic
+    /**
+     * Handles user clicks on the grid, either 'X'(guess) and 'O' (final) answers.
+     * -Bruna and Daniel
+     */
     private void selectAnswer(int grid, int row, int col) {
         String currentText = gridButtons[grid][row][col].getText();
 
-        // 'X' for user guess, 'O' for their final answer.
         if (currentText.isEmpty()) {
             gridButtons[grid][row][col].setText("X");
             solver.setUserAnswer(grid, row, col, "X");
@@ -235,7 +262,11 @@ public class PuzzleGUI {
         }
     }
 
-    //hint
+    /**
+     * Reveals one correct answer as a hint and updates the grid at each press.
+     * and adds 20 seconds to timer as a penalty for using hints.
+     * -Bruna
+     */
     private void showHint() {
         boolean hintProvided = solver.revealOneCorrectAnswer();
 
@@ -257,7 +288,10 @@ public class PuzzleGUI {
         }
     }
 
-    //clear errors
+    /**
+     * Clears all incorrect answers from the grid and also adds a time penalty.
+     * -Bruna
+     */
     private void clearErrors() {
         for (int grid = 0; grid < 3; grid++) {
             for (int row = 0; row < 4; row++) {
@@ -265,7 +299,7 @@ public class PuzzleGUI {
                     String userAnswer = solver.getUserAnswer(grid, row, col);
                     String correctAnswer = solver.getCorrectAnswer(grid, row, col);
 
-                    //if user answer ('O') is incorrect, clear that cell
+                    //if user answer ('O') is in incorrect place, clear that cell
                     if ("O".equals(userAnswer) && !"O".equals(correctAnswer)) {
                         gridButtons[grid][row][col].setText(""); //clears button text
                         solver.setUserAnswer(grid, row, col, null); //clears user's answer
@@ -274,10 +308,13 @@ public class PuzzleGUI {
             }
         }
         totalAdjustedTime += 20; //adds 20 seconds penalty
-        JOptionPane.showMessageDialog(frame, "All incorrect answers have been cleared!");
+        JOptionPane.showMessageDialog(frame, "All incorrect answers have been cleared!"); //quick warning
     }
 
-    //start over
+    /**
+     * Resets the game, including clearing the grid and resetting the timer.
+     * -Gabriel
+     */
     private void startOver() {
         solver.resetUserAnswers(); //resets all answers
         totalTimeElapsed = 0; //resets timer
@@ -295,7 +332,11 @@ public class PuzzleGUI {
         JOptionPane.showMessageDialog(frame, "The puzzle has been reset! You can start over.");
     }
 
-    //submit
+    /**
+     * Submits the user's answers, checks if they're correct, and stops the timer. Sending the user back to the welcome screen.
+     * If any of the answers are missing or incorrect, resume play and timer.
+     * -Bruna
+     */
     private void submitAnswers() {
         boolean allCorrect = solver.checkEntirePuzzle();
         timer.stop(); //ensures timer stops when submit is clicked
@@ -313,22 +354,34 @@ public class PuzzleGUI {
         }
     }
 
+    /**
+     * Starts the timer when the game begins.
+     * - Gabriel
+     */
     private void startTimer () {
         startTime = System.currentTimeMillis();
         timer = new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //has the timer display in this format "seconds.milliseconds", example 10.2 seconds
                 totalTimeElapsed = (System.currentTimeMillis() - startTime) / 1000;
                 timerLabel.setText("Timer: " + totalTimeElapsed + "s");
             }
         });
         timer.start();
     }
+
+    /**
+     * Stops the timer when the game ends or is paused.
+     * - Gabriel
+     */
     private void stopTimer () {
         timer.stop();
     }
 
+    /**
+     * Resets all timers to 0 for a new game or when user decides to start over.
+     * - Bruna
+     */
     public static void resetTimers() {
         totalElapsedTime = 0;
         totalAdjustedTime = 0;

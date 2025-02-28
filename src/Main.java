@@ -1,30 +1,36 @@
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+/*
+ * Logic Puzzle Game - CS225 Project 2
+ *
+ * Main class that creates a new game by initializing the PuzzleData
+ * class (deals with the input data) and the PuzzleSolver class (game
+ * logic) and passes it into the PuzzleGUI class' constructor to display
+ * the GUI.
+ *
+ * Daniel
+ */
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.io.IOException;
+
 public class Main {
-    private static ArrayList<File> unplayedFiles = new ArrayList<>(); //tracks unplayed games. Helpful since we decided to pick a random data file from the many inside the folder.
 
     public static void main(String[] args) {
         startNewGame();
     }
 
-    public static void startNewGame() { //initializes the game, loading the puzzle data and launching the GUI
+    /**
+     * startNewGame() starts a new game by loading a data file from the list of unplayed
+     * puzzles, and launches the solver logic as well as the GUI.
+     * It catches any errors that may occur during the loading of the data files.
+     * - Daniel
+     */
+    public static void startNewGame() {
         try {
-            PuzzleData data = new PuzzleData(unplayedFiles);
+            PuzzleData data = new PuzzleData();
             PuzzleSolver solver = new PuzzleSolver(data);
             new PuzzleGUI(data, solver);
         } catch (IOException e) {
-            System.out.println("Something went wrong with the loading of files:" + e.getMessage());
+            System.out.println("Something went wrong while loading the files:" + e.getMessage());
         }
-    }
-
-    //resets unplayed files once all puzzles have been played, so that we don't run into an error once we have played all files.
-    public static void resetUnplayedFiles(ArrayList<File> allFiles) {
-        unplayedFiles.clear();
-        unplayedFiles.addAll(allFiles);
     }
 }
 

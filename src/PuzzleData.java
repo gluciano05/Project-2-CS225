@@ -1,11 +1,37 @@
-import java.io.BufferedReader;
+/*
+ * Logic Puzzle Game - CS225 Project 2
+ *
+ * PuzzleData class is responsible for loading the game data from the data files given.
+ *
+ * (I have played the game multiple times to gather its specific data and relationships
+ * and transfer those into our data files, so that we could focus on the code and log
+ * of the game, rather than spending time creating new data stories from imagination - Bruna)
+ *
+ * Data is organized into:
+ * - categories
+ * - items in each category
+ * - clues
+ * - story line
+ * - correct answers
+ *
+ * We have implemented the idea of a folder that would contain the puzzle data files,
+ * and as a new game starts, the program chooses a random file to start. Removing it
+ * from the unplayed files array list (for new games always until all files have been
+ * played, then that list resets). - "can be easily extended to offer more puzzles", as
+ * required.
+ *
+ * Bruna and Gabriel
+ */
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.io.BufferedReader;
 import java.util.Random;
 
 public class PuzzleData {
+
     public ArrayList<String> categories = new ArrayList<>(); //category's name
     public ArrayList<ArrayList<String>> categoryItems = new ArrayList<>(); //items in each category
     public ArrayList<String> clues = new ArrayList<>(); //list of clues given
@@ -13,8 +39,14 @@ public class PuzzleData {
     public ArrayList<String[]> correctAnswers = new ArrayList<>(); //right answers as a list of arrays
 
     private static ArrayList<File> allFiles = new ArrayList<>(); //keeps track of all files loaded from the folder
+    private static ArrayList<File> unplayedFiles = new ArrayList<>();//tracks unplayed files
 
-    public PuzzleData(ArrayList<File> unplayedFiles) throws IOException { //initializes a new puzzle with data from a random file
+    /**
+     * Initializes a new puzzle by loading a random data file from unplayed files.
+     * If all files have been played, it resets the unplayed files list.
+     * - Gabriel and Bruna
+     */
+    public PuzzleData() throws IOException {
         File folder = new File("./Resources"); //the folder where all files exist
         File[] files = folder.listFiles((dir, name) -> name.endsWith(".txt"));
 
@@ -25,9 +57,9 @@ public class PuzzleData {
                 }
             }
 
-            //reset is all puzzels have been played
+            //reset if all puzzles have been played
             if (unplayedFiles.isEmpty()) {
-                Main.resetUnplayedFiles(allFiles);
+                resetUnplayedFiles(allFiles);
             }
 
             //selects random from not yet played
@@ -38,7 +70,11 @@ public class PuzzleData {
         }
     }
 
-    private File getRandomUnplayedFile(ArrayList<File> unplayedFiles) { //selects random from the list of unplayed files
+    /**
+     * getRandomUnplayedFile() selects random file from the list of unplayed files
+     * - Bruna
+     */
+    private File getRandomUnplayedFile(ArrayList<File> unplayedFiles) {
         Random random = new Random();
         int randomIndex = random.nextInt(unplayedFiles.size());
         File selectedFile = unplayedFiles.get(randomIndex);
@@ -46,7 +82,22 @@ public class PuzzleData {
         return selectedFile;
     }
 
-    private void loadPuzzleData(String filePath) throws IOException { //loads puzzle data from that file
+    /**
+     * resetUnplayedFiles() does as described. Once all files from the game data folder have been
+     * played, it resets the array list with all files for not running the risk of being unable to play.
+     * - Bruna
+     */
+    public static void resetUnplayedFiles(ArrayList<File> allFiles) {
+        unplayedFiles.clear(); //removes all file items to avoid repetition
+        unplayedFiles.addAll(allFiles); //adds all files back in the array list
+    }
+
+    /**
+     * loadPuzzleData() loads puzzle data from the given file path
+     * - Gabriel and Bruna
+     */
+    private void loadPuzzleData(String filePath) throws IOException {
+
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         String line;
         String currentSection = ""; //tracks which is being read
@@ -77,13 +128,13 @@ public class PuzzleData {
                             categoryItems.add(items);
                         }
                         break;
-                    case "# clues": //takes whats in for clues
+                    case "# clues": //takes what's in there for clues
                         clues.add(line);
                         break;
                     case "# story": //takes story sentence
                         story += line + "\n"; //each line
                         break;
-                    case "# correct answers": //takes the correct answers's relationships
+                    case "# correct answers": //takes the correct answer's relationships
                         String[] answerParts = line.split(": "); //parses and stores
                         if (answerParts.length == 2) {
                             String name = answerParts[0].trim();
@@ -98,8 +149,4 @@ public class PuzzleData {
         }
         reader.close();
     }
-
-
-
-
 }
